@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two-Tier Flask App 🚀</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #161b22;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+        h1 {
+            color: #58a6ff;
+        }
+        input[type="text"], input[type="submit"] {
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+        }
+        input[type="text"] {
+            width: 80%;
+            background: #21262d;
+            color: white;
+        }
+        input[type="submit"] {
+            background: #238636;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background: #2ea043;
+        }
+        .messages p {
+            background: #30363d;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Two-Tier Flask App 💬</h1>
+        <p>Enter your message below — it will be stored in MySQL!</p>
+
+        <div class="messages">
+            {% for message in messages %}
+                <p>{{ message[0] }}</p>
+            {% endfor %}
+        </div>
+
+        <form id="messageForm">
+            <input type="text" name="new_message" placeholder="Type your message..." required>
+            <input type="submit" value="Send">
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#messageForm").on("submit", function(event) {
+                event.preventDefault();
+                const msg = $("input[name='new_message']").val().trim();
+                if (msg === "") return;
+
+                $.post("/submit", { new_message: msg }, function(response) {
+                    $(".messages").append("<p>" + response.message + "</p>");
+                    $("input[name='new_message']").val("");
+                });
+            });
+        });
+    </script>
+</body>
+</html>
