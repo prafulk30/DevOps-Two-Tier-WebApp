@@ -8,7 +8,6 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        // for multibranch or Pipeline from SCM this will use the Jenkins-provided SCM
         checkout scm
       }
     }
@@ -16,7 +15,6 @@ pipeline {
     stage('Build image') {
       steps {
         script {
-          // build image on the host docker
           sh "docker build -t ${DOCKER_IMAGE} ."
         }
       }
@@ -25,7 +23,6 @@ pipeline {
     stage('Deploy with Docker Compose') {
       steps {
         script {
-          // stop existing and bring up new stack (rebuild)
           sh '''
             docker compose down -v || true
             docker compose up -d --build
@@ -40,9 +37,17 @@ pipeline {
       echo "Pipeline finished successfully."
     }
     failure {
-      echo "Pipeline failed — printing docker-compose logs for debugging."
-      // use --lines which is supported by compose/docker on more versions
-      sh 'docker compose logs --lines 200 || true'
+      echo "Pipeline failed — printing docker-compose logs (most recent 200 lines) for debugging."
+      sh '''
+        set -e
+        if docker compose version >/dev/null 2>&1; then
+          docker compose logs 2>/dev/null | tail -n 200 || true
+        elif docker-compose version >/dev/null 2>&1; then
+          docker-compose logs 2>/dev/null | tail -n 200 || true
+        else
+          echo "No compose CLI available; skipping logs"
+        fi
+      '''
     }
   }
 }

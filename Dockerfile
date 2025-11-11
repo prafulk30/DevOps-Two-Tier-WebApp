@@ -10,9 +10,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       gcc \
       default-libmysqlclient-dev \
-      pkg-config \
-      netcat \
-      && rm -rf /var/lib/apt/lists/*
+      pkg-config netcat-openbsd  \
+      netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python deps first to leverage cache
 COPY requirements.txt .
