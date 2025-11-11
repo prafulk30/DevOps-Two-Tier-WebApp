@@ -24,8 +24,21 @@ pipeline {
       steps {
         script {
           sh '''
-            docker compose down -v || true
-            docker compose up -d --build
+            set -e
+
+            # prefer "docker compose" (newer CLI), fallback to docker-compose (legacy)
+            if docker compose version >/dev/null 2>&1; then
+              echo "Using: docker compose"
+              docker compose down --volumes || true
+              docker compose up --detach --build
+            elif docker-compose version >/dev/null 2>&1; then
+              echo "Using: docker-compose"
+              docker-compose down -v || true
+              docker-compose up -d --build
+            else
+              echo "No Compose CLI found (docker compose or docker-compose). Exiting with error."
+              exit 1
+            fi
           '''
         }
       }
@@ -37,7 +50,7 @@ pipeline {
       echo "Pipeline finished successfully."
     }
     failure {
-      echo "Pipeline failed — printing docker-compose logs (most recent 200 lines) for debugging."
+      echo "Pipeline failed — printing compose logs (recent) for debugging."
       sh '''
         set -e
         if docker compose version >/dev/null 2>&1; then
