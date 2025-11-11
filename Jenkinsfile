@@ -41,7 +41,8 @@ pipeline {
     }
     failure {
       echo "Pipeline failed — printing docker-compose logs for debugging."
-      sh 'docker compose logs --tail=200 || true'
+      // use --lines which is supported by compose/docker on more versions
+      sh 'docker compose logs --lines 200 || true'
     }
   }
 }
